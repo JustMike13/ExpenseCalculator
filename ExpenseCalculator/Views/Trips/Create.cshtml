@@ -1,9 +1,16 @@
 ﻿@model ExpenseCalculator.Models.Trip
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 
 @{
     ViewData["Title"] = "Create";
 }
-
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var userId = user?.Id;
+}
 <h1>Create</h1>
 
 <h4>Trip</h4>
@@ -17,11 +24,12 @@
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-            <div class="form-group">
+			<!--<div class="form-group">
                 <label asp-for="CreatorId" class="control-label"></label>
                 <input asp-for="CreatorId" class="form-control" />
                 <span asp-validation-for="CreatorId" class="text-danger"></span>
-            </div>
+			</div>-->
+            <input asp-for="CreatorId" class="form-control" type="hidden" value="@userId" />
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>

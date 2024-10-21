@@ -13,5 +13,6 @@ namespace ExpenseCalculator.Data
         public DbSet<ExpenseCalculator.Models.Expense> Expense { get; set; } = default!;
         public DbSet<ExpenseCalculator.Models.Payment> Payment { get; set; } = default!;
         public DbSet<ExpenseCalculator.Models.Trip> Trip { get; set; } = default!;
+        public DbSet<ExpenseCalculator.Models.UserTrip> UserTrip { get; set; } = default!;
     }
 }

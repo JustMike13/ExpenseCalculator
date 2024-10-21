@@ -7,27 +7,25 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ExpenseCalculator.Data;
 using ExpenseCalculator.Models;
-using Microsoft.AspNetCore.Authorization;
 
 namespace ExpenseCalculator.Controllers
 {
-    [Authorize]
-    public class TripsController : Controller
+    public class UserTripsController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public TripsController(ApplicationDbContext context)
+        public UserTripsController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Trips
+        // GET: UserTrips
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Trip.ToListAsync());
+            return View(await _context.UserTrip.ToListAsync());
         }
 
-        // GET: Trips/Details/5
+        // GET: UserTrips/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -35,42 +33,39 @@ namespace ExpenseCalculator.Controllers
                 return NotFound();
             }
 
-            var trip = await _context.Trip
+            var userTrip = await _context.UserTrip
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (trip == null)
+            if (userTrip == null)
             {
                 return NotFound();
             }
 
-            return View(trip);
+            return View(userTrip);
         }
 
-        // GET: Trips/Create
-        [Authorize(Roles = "Admin, Creator")]
+        // GET: UserTrips/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Trips/Create
+        // POST: UserTrips/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "Admin, Creator")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,CreatorId")] Trip trip)
+        public async Task<IActionResult> Create([Bind("Id,UserId,TripId,Owner")] UserTrip userTrip)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(trip);
+                _context.Add(userTrip);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(trip);
+            return View(userTrip);
         }
 
-        // GET: Trips/Edit/5
-        [Authorize(Roles = "Admin, Creator")]
+        // GET: UserTrips/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -78,23 +73,22 @@ namespace ExpenseCalculator.Controllers
                 return NotFound();
             }
 
-            var trip = await _context.Trip.FindAsync(id);
-            if (trip == null)
+            var userTrip = await _context.UserTrip.FindAsync(id);
+            if (userTrip == null)
             {
                 return NotFound();
             }
-            return View(trip);
+            return View(userTrip);
         }
 
-        // POST: Trips/Edit/5
+        // POST: UserTrips/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "Admin, Creator")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CreatorId")] Trip trip)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,TripId,Owner")] UserTrip userTrip)
         {
-            if (id != trip.Id)
+            if (id != userTrip.Id)
             {
                 return NotFound();
             }
@@ -103,12 +97,12 @@ namespace ExpenseCalculator.Controllers
             {
                 try
                 {
-                    _context.Update(trip);
+                    _context.Update(userTrip);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TripExists(trip.Id))
+                    if (!UserTripExists(userTrip.Id))
                     {
                         return NotFound();
                     }
@@ -119,11 +113,10 @@ namespace ExpenseCalculator.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(trip);
+            return View(userTrip);
         }
 
-        // GET: Trips/Delete/5
-        [Authorize(Roles = "Admin, Creator")]
+        // GET: UserTrips/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -131,35 +124,34 @@ namespace ExpenseCalculator.Controllers
                 return NotFound();
             }
 
-            var trip = await _context.Trip
+            var userTrip = await _context.UserTrip
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (trip == null)
+            if (userTrip == null)
             {
                 return NotFound();
             }
 
-            return View(trip);
+            return View(userTrip);
         }
 
-        // POST: Trips/Delete/5
-        [Authorize(Roles = "Admin, Creator")]
+        // POST: UserTrips/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var trip = await _context.Trip.FindAsync(id);
-            if (trip != null)
+            var userTrip = await _context.UserTrip.FindAsync(id);
+            if (userTrip != null)
             {
-                _context.Trip.Remove(trip);
+                _context.UserTrip.Remove(userTrip);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool TripExists(int id)
+        private bool UserTripExists(int id)
         {
-            return _context.Trip.Any(e => e.Id == id);
+            return _context.UserTrip.Any(e => e.Id == id);
         }
     }
 }
