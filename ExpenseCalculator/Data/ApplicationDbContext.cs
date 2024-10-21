@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using ExpenseCalculator.Models;
 
 namespace ExpenseCalculator.Data
 {
@@ -9,5 +10,8 @@ namespace ExpenseCalculator.Data
             : base(options)
         {
         }
+        public DbSet<ExpenseCalculator.Models.Expense> Expense { get; set; } = default!;
+        public DbSet<ExpenseCalculator.Models.Payment> Payment { get; set; } = default!;
+        public DbSet<ExpenseCalculator.Models.Trip> Trip { get; set; } = default!;
     }
 }
