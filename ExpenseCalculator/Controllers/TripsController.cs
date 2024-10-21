@@ -67,7 +67,7 @@ namespace ExpenseCalculator.Controllers
         [Authorize(Roles = "Admin, Creator")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,CreatorId")] Trip trip)
+        public async Task<IActionResult> Create([Bind("Id,Name,InviteCode,CreatorId")] Trip trip)
         {
             if (ModelState.IsValid)
             {
