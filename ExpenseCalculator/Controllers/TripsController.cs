@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using ExpenseCalculator.Data;
 using ExpenseCalculator.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Runtime.CompilerServices;
 
 namespace ExpenseCalculator.Controllers
 {
@@ -24,7 +28,12 @@ namespace ExpenseCalculator.Controllers
         // GET: Trips
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Trip.ToListAsync());
+            System.FormattableString query = FormattableStringFactory.
+                Create("SELECT TripId FROM UserTrip WHERE UserId = '" + User.FindFirstValue(ClaimTypes.NameIdentifier) + "'");
+            var result = _context.Database
+                        .SqlQuery<int>(query)
+                        .ToList();
+            return View(await _context.Trip.Where(t => result.Contains(t.Id) || User.IsInRole("Admin")).ToListAsync());
         }
 
         // GET: Trips/Details/5
@@ -63,6 +72,11 @@ namespace ExpenseCalculator.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(trip);
+                await _context.SaveChangesAsync();
+                UserTrip userTrip = new UserTrip();
+                userTrip.TripId = trip.Id;
+                userTrip.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                _context.Add(userTrip);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
