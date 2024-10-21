@@ -71,6 +71,7 @@ namespace ExpenseCalculator.Controllers
         {
             if (ModelState.IsValid)
             {
+                trip.Active = true;
                 _context.Add(trip);
                 await _context.SaveChangesAsync();
                 UserTrip userTrip = new UserTrip();
@@ -169,6 +170,25 @@ namespace ExpenseCalculator.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize(Roles = "User, Creator, Admin")]
+        public IActionResult RegisterToTrip()
+        {
+            return View("RegisterToTrip");
+        }
+
+        [Authorize(Roles = "User, Creator, Admin")]
+        [HttpPost]
+        public IActionResult RegisterToTrip(string InviteCode)
+        {
+            Trip trip = _context.Trip.Where(t => t.InviteCode == InviteCode).First();
+            UserTrip userTrip = new UserTrip();
+            userTrip.TripId = trip.Id;
+            userTrip.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _context.Add(userTrip);
+            _context.SaveChangesAsync();
+            return View("Details", trip);
         }
 
         private bool TripExists(int id)

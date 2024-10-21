@@ -14,5 +14,6 @@ namespace ExpenseCalculator.Models
         [NotNull]
         public string CreatorId { get; set; }
         public bool Active { get; set; }
+        public string InviteCode { get; set; }
     }
 }
