@@ -10,12 +10,23 @@
 @{
     var user = await UserManager.GetUserAsync(User);
     var userId = user?.Id;
+    var expenses = ViewBag.TripExpenses as List<ExpenseCalculator.Models.ExpenseView>;
+    var tripId = Model.Id;
 }
 
 <h1>Details</h1>
 
-<a type="button" class="btn btn-primary" asp-controller="Expenses" asp-action="Create" asp-route-id="@Model.Id">Add New Expense</a>
+<a class="btn btn-primary" asp-controller="Expenses" asp-action="Create" asp-route-id="@tripId">Add New Expense</a>
 
+<div>
+    @{
+        if ((User.IsInRole("Creator") && userId == Model?.CreatorId) || User.IsInRole("Admin"))
+        {
+            <a asp-action="Edit" asp-route-id="@tripId"> Edit </a> <span> | </span>
+        }
+    }
+    <a asp-action="Index">Back to List</a>
+</div>
 <div>
     <h4>Trip</h4>
     <hr />
@@ -26,20 +37,37 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatorId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatorId)
-        </dd>
     </dl>
-</div>
-<div>
-    @{
-        if ((User.IsInRole("Creator") && userId == Model?.CreatorId) || User.IsInRole("Admin"))
-        {
-            <a asp-action="Edit" asp-route-id="@Model?.Id"> Edit </a> <span> | </span>    
-        }
-    }
-    <a asp-action="Index">Back to List</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Payer
+                </th>
+                <th>
+                    Amount
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (expenses != null)
+            @foreach (var item in expenses)
+            {
+                <tr>
+                    <td>
+                            <a class="btn btn-primary" asp-controller="Expenses" asp-action="Details" asp-route-id="@item.ExpenseId">@Html.DisplayFor(modelItem => item.Name)</a>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UserName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Ammount)
+                    </td>
+                </tr>
+            }
+        </tbody>
 </div>

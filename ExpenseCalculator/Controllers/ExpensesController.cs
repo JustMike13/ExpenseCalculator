@@ -46,9 +46,9 @@ namespace ExpenseCalculator.Controllers
         }
 
         // GET: Expenses/Create
-        public IActionResult Create(int TripId)
+        public IActionResult Create(int Id)
         {
-            ViewData["TripId"] = TripId;
+            ViewData["TripId"] = Id;
             ViewData["UserId"] = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return View();
         }

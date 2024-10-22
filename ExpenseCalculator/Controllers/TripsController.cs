@@ -37,6 +37,7 @@ namespace ExpenseCalculator.Controllers
         }
 
         // GET: Trips/Details/5
+        [Authorize(Roles = "User, Creator, Admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -50,7 +51,12 @@ namespace ExpenseCalculator.Controllers
             {
                 return NotFound();
             }
-
+            System.FormattableString query = FormattableStringFactory.
+                Create("SELECT e.Id ExpenseId, e.Name, u.UserName UserName, e.TotalAmmount Ammount FROM Expense e, AspNetUsers u WHERE u.Id = e.PayedBy and e.TripId = '" + trip.Id + "'");
+            var result = _context.Database
+                        .SqlQuery<ExpenseView>(query)
+                        .ToList();
+            ViewBag.TripExpenses = result;
             return View(trip);
         }
 
