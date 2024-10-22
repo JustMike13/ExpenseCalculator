@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ExpenseCalculator.Data;
 using ExpenseCalculator.Models;
+using System.Security.Claims;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace ExpenseCalculator.Controllers
 {
@@ -44,8 +46,10 @@ namespace ExpenseCalculator.Controllers
         }
 
         // GET: Expenses/Create
-        public IActionResult Create()
+        public IActionResult Create(int TripId)
         {
+            ViewData["TripId"] = TripId;
+            ViewData["UserId"] = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return View();
         }
 
@@ -54,11 +58,18 @@ namespace ExpenseCalculator.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,PayedBy,Name,TotalAmmount,EquallyDivided,OwnContribution")] Expense expense)
+        public async Task<IActionResult> Create([Bind("TripId,PayedBy,Name,TotalAmmount,EquallyDivided,OwnContribution")] Expense expense)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(expense);
+                await _context.SaveChangesAsync();
+                Payment pmt = new Payment();
+                pmt.ExpenseId = expense.Id;
+                pmt.Payer = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                pmt.Name = expense.Name;
+                pmt.Ammount = expense.TotalAmmount - expense.OwnContribution;
+                _context.Add(pmt);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }

@@ -13,6 +13,7 @@ namespace ExpenseCalculator.Models
         public string Name { get; set; }
         public float TotalAmmount { get; set; }
         public bool EquallyDivided { get; set; }
+        [AllowNull]
         public float OwnContribution { get; set; }
         [NotNull]
         public int TripId { get; set; }
