@@ -98,6 +98,13 @@ namespace ExpenseCalculator.Controllers
             {
                 return NotFound();
             }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != trip.CreatorId && !User.IsInRole("Admin"))
+            {
+                return NotFound();
+            }
+
             return View(trip);
         }
 
@@ -148,7 +155,13 @@ namespace ExpenseCalculator.Controllers
 
             var trip = await _context.Trip
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (trip == null)
+            {
+                return NotFound();
+            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != trip.CreatorId && !User.IsInRole("Admin"))
             {
                 return NotFound();
             }

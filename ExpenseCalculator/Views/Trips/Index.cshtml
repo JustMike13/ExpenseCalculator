@@ -1,16 +1,29 @@
 ﻿@model IEnumerable<ExpenseCalculator.Models.Trip>
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 
 @{
     ViewData["Title"] = "Index";
+}
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var userId = user?.Id;
 }
 
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    @{
+        if (User.IsInRole("Creator") || User.IsInRole("Admin"))
+        {
+            <a type="button" class="btn btn-primary" asp-action="Create">Create New</a>
+        }
+    }
 </p>
 <p>
-    <a class="nav-link text-dark" asp-area="" asp-controller="Trips" asp-action="RegisterToTrip">Register to Trip</a>
+    <a type="button" class="btn btn-primary" asp-area="" asp-controller="Trips" asp-action="RegisterToTrip">Register to Trip</a>
 </p>
 <table class="table">
     <thead>
@@ -30,13 +43,15 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatorId)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            <td class="justify-content-between">
+					<a asp-action="Details" asp-route-id="@item.Id">Details</a> 
+                    @{
+                        if ((User.IsInRole("Creator") && userId == item.CreatorId) || User.IsInRole("Admin"))
+                        {
+                                <span> | </span> <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                <span> | </span> <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        }
+                    }
             </td>
         </tr>
 }

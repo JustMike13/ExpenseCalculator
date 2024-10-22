@@ -1,7 +1,15 @@
 ﻿@model ExpenseCalculator.Models.Trip
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 
 @{
     ViewData["Title"] = "Details";
+}
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var userId = user?.Id;
 }
 
 <h1>Details</h1>
@@ -25,6 +33,11 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    @{
+        if ((User.IsInRole("Creator") && userId == Model?.CreatorId) || User.IsInRole("Admin"))
+        {
+            <a asp-action="Edit" asp-route-id="@Model?.Id"> Edit </a> <span> | </span>    
+        }
+    }
     <a asp-action="Index">Back to List</a>
 </div>
