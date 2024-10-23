@@ -71,7 +71,7 @@ namespace ExpenseCalculator.Controllers
                 pmt.Ammount = expense.TotalAmmount - expense.OwnContribution;
                 _context.Add(pmt);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Details), "Trips", new { id = expense.TripId });
             }
             return View(expense);
         }
