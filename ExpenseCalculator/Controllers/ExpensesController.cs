@@ -9,6 +9,7 @@ using ExpenseCalculator.Data;
 using ExpenseCalculator.Models;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Runtime.CompilerServices;
 
 namespace ExpenseCalculator.Controllers
 {
@@ -42,6 +43,19 @@ namespace ExpenseCalculator.Controllers
                 return NotFound();
             }
 
+            System.FormattableString query = FormattableStringFactory.
+                Create("SELECT UserName FROM AspNetUsers WHERE Id = '" + expense.PayedBy + "'");
+            ViewBag.UserName = _context.Database
+                        .SqlQuery<string>(query)
+                        .ToList().First();
+
+            query = FormattableStringFactory.
+                Create("SELECT p.Id Id, u.UserName Payer, p.Name Name, p.Ammount Ammount, p.ExpenseId ExpenseId " +
+                "FROM Payment p, AspNetUsers u WHERE u.Id = p.Payer and p.ExpenseId = '" + expense.Id + "'");
+            ViewBag.Payments = _context.Database
+                                    .SqlQuery<Payment>(query)
+                                    .ToList();
+            ViewBag.MyUserName = User.Identity.Name;
             return View(expense);
         }
 

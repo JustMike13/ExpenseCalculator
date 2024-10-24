@@ -120,7 +120,7 @@ namespace ExpenseCalculator.Controllers
         [Authorize(Roles = "Admin, Creator")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CreatorId")] Trip trip)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CreatorId,InviteCode")] Trip trip)
         {
             if (id != trip.Id)
             {

@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Details";
+    var payments = ViewBag.Payments as List<ExpenseCalculator.Models.Payment>;
+    var myUserName = ViewBag.MyUserName;
 }
 
 <h1>Details</h1>
@@ -14,7 +16,7 @@
             @Html.DisplayNameFor(model => model.PayedBy)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PayedBy)
+            @ViewBag.UserName
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
@@ -44,5 +46,43 @@
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Details" asp-controller="Trips" asp-route-id="@Model?.TripId">Back to List</a>
 </div>
+<table class="table">
+    <thead>
+        <tr>
+			<th>
+				Payer
+            </th>
+			<th>
+				Name
+            </th>
+            <th>
+                Amount
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (payments != null)
+            @foreach (var item in payments)
+            {
+				<tr>
+					<td>
+						@Html.DisplayFor(modelItem => item.Payer)
+					</td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Ammount)
+                    </td>
+                    @if(item.Payer == myUserName)
+                    {
+                        <td>
+                            <a class="btn btn-primary" asp-controller="Payments" asp-action="Edit" asp-route-id="@item.Id"><span class="bi bi-pencil-fill"></a>
+                        </td>
+                    }
+                </tr>
+            }
+    </tbody>

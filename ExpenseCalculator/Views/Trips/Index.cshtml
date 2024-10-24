@@ -12,44 +12,41 @@
     var userId = user?.Id;
 }
 
-<h1>Index</h1>
-
-<p>
-    @{
-        if (User.IsInRole("Creator") || User.IsInRole("Admin"))
-        {
-            <a type="button" class="btn btn-primary" asp-action="Create">Create New</a>
+<h1>My trips</h1>
+<span>
+	<span>
+		<a type="button" class="btn btn-primary" asp-area="" asp-controller="Trips" asp-action="RegisterToTrip">Register To Trip</a>
+	</span>
+    <span>
+        @{
+            if (User.IsInRole("Creator") || User.IsInRole("Admin"))
+            {
+                <a type="button" class="btn btn-primary" asp-action="Create">Create New Trip</a>
+            }
         }
-    }
-</p>
-<p>
-    <a type="button" class="btn btn-primary" asp-area="" asp-controller="Trips" asp-action="RegisterToTrip">Register to Trip</a>
-</p>
+    </span>
+</span>
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatorId)
-            </th>
-            <th></th>
+            <br/>
+            <br/>
+            <br/>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
-        <tr>
+        <tr href =>
             <td>
-                @Html.DisplayFor(modelItem => item.Name)
+                    <a class="btn btn-secondary" asp-action="Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.Name)</a>
             </td>
             <td class="justify-content-between">
-					<a asp-action="Details" asp-route-id="@item.Id">Details</a> 
-                    @{
+					<a class="btn btn-secondary" asp-action="Details" asp-route-id="@item.Id"><i class="bi bi-arrow-up-right-square"></i></a>
+					@{
                         if ((User.IsInRole("Creator") && userId == item.CreatorId) || User.IsInRole("Admin"))
                         {
-                                <span> | </span> <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                                <span> | </span> <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+							<a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.Id"><span class="bi bi-pencil-fill"></a>
+                            <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id"><span class="bi bi-trash-fill"></a>
                         }
                     }
             </td>
