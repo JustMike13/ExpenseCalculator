@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ExpenseCalculator.Data;
 using ExpenseCalculator.Models;
+using System.Security.Claims;
+using System.Runtime.CompilerServices;
 
 namespace ExpenseCalculator.Controllers
 {
@@ -20,9 +22,16 @@ namespace ExpenseCalculator.Controllers
         }
 
         // GET: Payments
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id)
         {
-            return View(await _context.Payment.ToListAsync());
+            System.FormattableString query = FormattableStringFactory.
+                Create("SELECT p.Id FROM Payment p, Expense e " +
+                "WHERE p.Payer = '" + User.FindFirstValue(ClaimTypes.NameIdentifier) + 
+                "' and p.ExpenseId = e.Id and e.TripId = " + id.ToString());
+            var result = _context.Database
+                        .SqlQuery<int>(query)
+                        .ToList();
+            return View(await _context.Payment.Where(p => result.Contains(p.Id)).ToListAsync());
         }
 
         // GET: Payments/Details/5

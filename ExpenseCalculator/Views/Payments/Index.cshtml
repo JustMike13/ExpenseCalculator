@@ -2,6 +2,11 @@
 
 @{
     ViewData["Title"] = "Index";
+    var total = 0.0f;
+    foreach(var item in Model)
+    {
+        total += item.Ammount;
+    }
 }
 
 <h1>Index</h1>
@@ -19,10 +24,7 @@
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Ammount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ExpenseId)
+                Total: @total
             </th>
             <th></th>
         </tr>
@@ -38,9 +40,6 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Ammount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ExpenseId)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

@@ -14,8 +14,10 @@
     var tripId = Model.Id;
 }
 
-<h1>Details</h1>
+<h1>@Html.DisplayFor(model => model.Name)</h1>
+<br/>
 
+<a class="btn btn-success" asp-controller="Payments" asp-action="Index" asp-route-id="@tripId">My Balance</a>
 <a class="btn btn-primary" asp-controller="Expenses" asp-action="Create" asp-route-id="@tripId">Add New Expense</a>
 
 <div>
@@ -27,17 +29,8 @@
     }
     <a asp-action="Index">Back to List</a>
 </div>
+<br/>
 <div>
-    <h4>Trip</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-    </dl>
     <table class="table">
         <thead>
             <tr>

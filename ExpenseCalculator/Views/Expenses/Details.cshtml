@@ -4,6 +4,8 @@
     ViewData["Title"] = "Details";
     var payments = ViewBag.Payments as List<ExpenseCalculator.Models.Payment>;
     var myUserName = ViewBag.MyUserName;
+    var totalPayments = 0.0f;
+    foreach(var item in payments) { totalPayments += item.Ammount; }
 }
 
 <h1>Details</h1>
@@ -58,7 +60,7 @@
 				Name
             </th>
             <th>
-                Amount
+                Total: @totalPayments
             </th>
             <th></th>
         </tr>
@@ -76,13 +78,13 @@
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Ammount)
-                    </td>
-                    @if(item.Payer == myUserName)
-                    {
-                        <td>
+					</td>
+					<td>
+                        @if(item.Payer == myUserName)
+                        {
                             <a class="btn btn-primary" asp-controller="Payments" asp-action="Edit" asp-route-id="@item.Id"><span class="bi bi-pencil-fill"></a>
-                        </td>
-                    }
+                        }
+                    </td>
                 </tr>
             }
     </tbody>
