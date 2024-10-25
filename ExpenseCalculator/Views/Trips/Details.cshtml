@@ -8,8 +8,7 @@
     ViewData["Title"] = "Details";
 }
 @{
-    var user = await UserManager.GetUserAsync(User);
-    var userId = user?.Id;
+    var userId = ViewBag.UserId;
     var expenses = ViewBag.TripExpenses as List<ExpenseCalculator.Models.ExpenseView>;
     var tripId = Model.Id;
 }

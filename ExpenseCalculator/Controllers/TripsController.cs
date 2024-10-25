@@ -57,6 +57,7 @@ namespace ExpenseCalculator.Controllers
                         .SqlQuery<ExpenseView>(query)
                         .ToList();
             ViewBag.TripExpenses = result;
+            ViewBag.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return View(trip);
         }
 
