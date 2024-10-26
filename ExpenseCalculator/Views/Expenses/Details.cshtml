@@ -3,28 +3,24 @@
 @{
     ViewData["Title"] = "Details";
     var payments = ViewBag.Payments as List<ExpenseCalculator.Models.Payment>;
-    var myUserName = ViewBag.MyUserName;
+    var expenseUserName = ViewBag.ExpenseUserName;
     var totalPayments = 0.0f;
+    var creatorName = ViewBag.CreatorUserName;
+    var myUserName = ViewBag.MyUserName;
+    var isAdmin = ViewBag.IamAdmin;
     foreach(var item in payments) { totalPayments += item.Ammount; }
 }
 
-<h1>Details</h1>
+<h1>@Html.DisplayFor(model => model.Name)</h1>
 
 <div>
-    <h4>Expense</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.PayedBy)
         </dt>
         <dd class = "col-sm-10">
-            @ViewBag.UserName
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
+            @ViewBag.ExpenseUserName
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.TotalAmmount)
@@ -33,7 +29,7 @@
             @Html.DisplayFor(model => model.TotalAmmount)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EquallyDivided)
+            Is Group Expense
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.EquallyDivided)
@@ -45,6 +41,10 @@
             @Html.DisplayFor(model => model.OwnContribution)
         </dd>
     </dl>
+</div>
+<div>
+    <a class="btn btn-primary" asp-controller="Payments" asp-action="Create" asp-route-id="1" asp-route-expenseId="@Model?.Id" asp-route-expenseName="@Model?.Name">Add Payment</a>
+    <a class="btn btn-primary" asp-controller="Payments" asp-action="Create" asp-route-id="2" asp-route-expenseId="@Model?.Id" asp-route-expenseName="@Model?.Name">Ask For Payment</a>
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
@@ -80,7 +80,10 @@
                         @Html.DisplayFor(modelItem => item.Ammount)
 					</td>
 					<td>
-                        @if(item.Payer == myUserName)
+                        @if (item.Payer == myUserName 
+                            || creatorName == myUserName
+                            || expenseUserName == myUserName
+                            || isAdmin)
                         {
                             <a class="btn btn-primary" asp-controller="Payments" asp-action="Edit" asp-route-id="@item.Id"><span class="bi bi-pencil-fill"></a>
                         }

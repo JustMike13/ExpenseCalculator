@@ -10,13 +10,12 @@ namespace ExpenseCalculator.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         [NotNull]
-        public string Payer {  get; set; }
+        public string Payer { get; set; }
         public string Name { get; set; }
         [AllowNull]
         public float Ammount { get; set; }
         [AllowNull]
         public int ExpenseId { get; set; }
-
 
     }
 }

@@ -53,9 +53,32 @@ namespace ExpenseCalculator.Controllers
         }
 
         // GET: Payments/Create
-        public IActionResult Create()
+        // id: 1 - Add Payment with current users id
+        //     2 - Show dropdown with all users
+        //     3 - a user paying his debt
+        public IActionResult Create(int? id, int ExpenseId = 0, string? ExpenseName = " ")
         {
-            return View();
+            Payment p = new Payment();
+            p.ExpenseId = ExpenseId;
+            p.Name = ExpenseName;
+            ViewBag.PaymentType = -1;
+            if (id == 1)
+            {
+                ViewBag.UserId = "Assigned";
+                p.Payer = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                ViewBag.Users = "noList";
+            }
+            else if (id == 2)
+            {
+                ViewBag.UserId = "NoUserAssigned";
+                var users = _context.Users.Select(u => new { u.Id, u.UserName }).ToList();
+                ViewBag.Users = new SelectList(users, "Id", "UserName");
+            }
+            else if (id == 3)
+            {
+                ViewBag.PaymentType = 1;
+            }
+            return View(p);
         }
 
         // POST: Payments/Create
@@ -63,13 +86,14 @@ namespace ExpenseCalculator.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Payer,Name,Ammount,ExpenseId")] Payment payment)
+        public async Task<IActionResult> Create([Bind("Payer,Name,Ammount,ExpenseId")] Payment payment, int PaymentType)
         {
             if (ModelState.IsValid)
             {
+                payment.Ammount = payment.Ammount * PaymentType >= 0 ? payment.Ammount : payment.Ammount * -1;
                 _context.Add(payment);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "Expenses", new { id = payment.ExpenseId });
             }
             return View(payment);
         }

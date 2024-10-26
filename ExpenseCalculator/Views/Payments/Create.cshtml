@@ -2,25 +2,33 @@
 
 @{
     ViewData["Title"] = "Create";
+    var users = @ViewBag.Users;
+    var paymentType = -1;
 }
 
 <h1>Create</h1>
 
-<h4>Payment</h4>
+<h4>Payment for @Model.Name</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Payer" class="control-label"></label>
-                <input asp-for="Payer" class="form-control" />
-                <span asp-validation-for="Payer" class="text-danger"></span>
+			<div class="form-group">
+                @if (ViewBag.UserId == "NoUserAssigned")
+                {
+                    <label asp-for="Payer" class="control-label"></label>
+                    @Html.DropDownList("Payer", users, "Select user", new {@class = "form-control"})
+                    <!--<select asp-for="Payer" class="form-control" asp-items="@(new SelectList(users, "Value", "Text"))" />-->
+                    <span asp-validation-for="Payer" class="text-danger"></span>
+                }
+                else
+                {
+                    <input asp-for="Payer" type="hidden" />
+                }
             </div>
             <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+                <input asp-for="Name" type="hidden" />
             </div>
             <div class="form-group">
                 <label asp-for="Ammount" class="control-label"></label>
@@ -28,11 +36,12 @@
                 <span asp-validation-for="Ammount" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input asp-for="ExpenseId" class="form-control"/>
+                <input asp-for="ExpenseId" type="hidden" />
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
+            <input type="hidden" name="paymentType" value="@paymentType" />
         </form>
     </div>
 </div>

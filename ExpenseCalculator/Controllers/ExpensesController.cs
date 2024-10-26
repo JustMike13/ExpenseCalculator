@@ -43,19 +43,36 @@ namespace ExpenseCalculator.Controllers
                 return NotFound();
             }
 
+            //Get the UserName of the user that owns the expense
             System.FormattableString query = FormattableStringFactory.
                 Create("SELECT UserName FROM AspNetUsers WHERE Id = '" + expense.PayedBy + "'");
-            ViewBag.UserName = _context.Database
+            ViewBag.ExpenseUserName = _context.Database
                         .SqlQuery<string>(query)
                         .ToList().First();
 
+            //Get the list of payments, but replace userId with UserName
             query = FormattableStringFactory.
                 Create("SELECT p.Id Id, u.UserName Payer, p.Name Name, p.Ammount Ammount, p.ExpenseId ExpenseId " +
                 "FROM Payment p, AspNetUsers u WHERE u.Id = p.Payer and p.ExpenseId = '" + expense.Id + "'");
             ViewBag.Payments = _context.Database
                                     .SqlQuery<Payment>(query)
                                     .ToList();
+
+            //Get the UserName and Id of current User
             ViewBag.MyUserName = User.Identity.Name;
+            //ViewBag.MyUserID = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            //Get the UserName of the creator of the trip, he can edit anything in the trip
+            query = FormattableStringFactory.
+                Create("SELECT u.UserName " +
+                "FROM Trip t, AspNetUsers u WHERE t.CreatorId = u.Id and t.Id = '" + expense.TripId +"'");
+            ViewBag.CreatorUserName = _context.Database
+                                    .SqlQuery<string>(query)
+                                    .ToList().First();
+
+            //Check if current user is admin
+            ViewBag.IamAdmin = User.IsInRole("Admin");
+
             return View(expense);
         }
 
