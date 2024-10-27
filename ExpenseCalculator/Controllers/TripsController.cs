@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Runtime.CompilerServices;
+using System.Data;
 
 namespace ExpenseCalculator.Controllers
 {
@@ -19,10 +20,16 @@ namespace ExpenseCalculator.Controllers
     public class TripsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager; 
+        private readonly SignInManager<IdentityUser> _signInManager;
 
-        public TripsController(ApplicationDbContext context)
+        public TripsController(ApplicationDbContext         context, 
+                               UserManager<IdentityUser>    userManager, 
+                               SignInManager<IdentityUser>  signInManager)
         {
             _context = context;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         // GET: Trips
@@ -192,13 +199,21 @@ namespace ExpenseCalculator.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [Authorize(Roles = "User, Creator, Admin")]
-        public IActionResult RegisterToTrip()
+        public async Task<IActionResult> RegisterToTrip()
         {
+            var user = await _userManager.GetUserAsync(User);
+            var roles = await _userManager.GetRolesAsync(user);
+
+            if (roles == null || !roles.Any())
+            {
+                await _userManager.AddToRoleAsync(user, "User");
+                // Refresh the user's authentication cookie
+                await _signInManager.SignOutAsync();
+                await _signInManager.SignInAsync(user, isPersistent: false);
+            }
             return View("RegisterToTrip");
         }
 
-        [Authorize(Roles = "User, Creator, Admin")]
         [HttpPost]
         public IActionResult RegisterToTrip(string InviteCode)
         {
