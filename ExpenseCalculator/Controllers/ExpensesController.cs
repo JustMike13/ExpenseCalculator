@@ -10,6 +10,7 @@ using ExpenseCalculator.Models;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Runtime.CompilerServices;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ExpenseCalculator.Controllers
 {
@@ -23,9 +24,9 @@ namespace ExpenseCalculator.Controllers
         }
 
         // GET: Expenses
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int id)
         {
-            return View(await _context.Expense.ToListAsync());
+            return View(await _context.Expense.Where(e => e.EquallyDivided && e.TripId == id).ToListAsync());
         }
 
         // GET: Expenses/Details/5
@@ -102,6 +103,10 @@ namespace ExpenseCalculator.Controllers
                 pmt.Ammount = expense.TotalAmmount - expense.OwnContribution;
                 _context.Add(pmt);
                 await _context.SaveChangesAsync();
+                if (expense.EquallyDivided)
+                {
+                    UpdateGroupExpenses(expense.TripId);
+                }
                 return RedirectToAction(nameof(Details), "Trips", new { id = expense.TripId });
             }
             return View(expense);
@@ -194,6 +199,42 @@ namespace ExpenseCalculator.Controllers
         private bool ExpenseExists(int id)
         {
             return _context.Expense.Any(e => e.Id == id);
+        }
+
+        public void UpdateGroupExpenses(int TripId)
+        {
+            //Get total ammount of group expenses and no of users
+            float totalAmmount = _context.Expense.Where(e => e.EquallyDivided && e.TripId == TripId && e.Name != "Group Expense").Sum(e => e.TotalAmmount);
+            Expense groupExp = _context.Expense.Where(e => e.Name == "Group Expense" && e.TripId == TripId).ToList().First();
+            List<string> userIds = _context.UserTrip.Where(ut => ut.TripId == TripId).Select(ut=>ut.UserId).ToList();
+            if (totalAmmount == 0 || userIds.IsNullOrEmpty())
+            {
+                return;
+            }
+
+            //create or update payments
+            foreach(string userId in userIds)
+            {
+                Payment pmt;
+                if (!_context.Payment.Any(p => p.Payer == userId && groupExp.Id == p.ExpenseId))
+                {
+                    pmt = new Payment();
+                    pmt.ExpenseId = groupExp.Id;
+                    pmt.Payer = userId;
+                    pmt.Name = "Group Expense Payment";
+                    pmt.Ammount = totalAmmount / userIds.Count();
+                    _context.Add(pmt);
+                }
+                else
+                {
+                    pmt = _context.Payment.Where(p => p.Payer == userId && groupExp.Id == p.ExpenseId).ToList().First();
+                    pmt.Ammount = - totalAmmount / userIds.Count();
+                    _context.SaveChanges();
+                }
+            }
+            //update group expense
+            groupExp.TotalAmmount = totalAmmount;
+            _context.SaveChanges();
         }
     }
 }

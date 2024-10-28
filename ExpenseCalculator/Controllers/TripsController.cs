@@ -92,6 +92,12 @@ namespace ExpenseCalculator.Controllers
                 userTrip.TripId = trip.Id;
                 userTrip.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 _context.Add(userTrip);
+                Expense exp = new Expense();
+                exp.Name = "Group Expense";
+                exp.EquallyDivided = true;
+                exp.TripId = trip.Id;
+                exp.TotalAmmount = 0;
+                exp.OwnContribution = 0;
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
