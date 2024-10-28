@@ -2,13 +2,18 @@
 
 @{
     ViewData["Title"] = "Index";
+    var perUser = -ViewBag.perUser;
 }
 
-<h1>Index</h1>
+<h1>@ViewBag.tripName</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a class="btn btn-primary" asp-controller="Expenses" asp-action="Create" asp-route-id="@ViewBag.tripId">Add New Expense</a>
+    <a class="btn btn-primary" asp-controller="Expenses" asp-action="Index" asp-route-id="@ViewBag.tripId">Refresh</a>
 </p>
+
+<h3>Total: @ViewBag.total</h3>
+<h3>... per user: @perUser</h3>
 <table class="table">
     <thead>
         <tr>
@@ -20,12 +25,6 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.TotalAmmount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EquallyDivided)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.OwnContribution)
             </th>
             <th></th>
         </tr>
@@ -43,14 +42,7 @@
                 @Html.DisplayFor(modelItem => item.TotalAmmount)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.EquallyDivided)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.OwnContribution)
-            </td>
-            <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>

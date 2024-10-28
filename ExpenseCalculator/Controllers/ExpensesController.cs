@@ -26,7 +26,18 @@ namespace ExpenseCalculator.Controllers
         // GET: Expenses
         public async Task<IActionResult> Index(int id)
         {
-            return View(await _context.Expense.Where(e => e.EquallyDivided && e.TripId == id).ToListAsync());
+            UpdateGroupExpenses(id);
+            ViewBag.tripId = id;
+            Expense grpExp = _context.Expense.Where(e => e.EquallyDivided && e.TripId == id && e.PayedBy == "").ToList().First();
+            ViewBag.total = grpExp.TotalAmmount;
+            ViewBag.perUser = _context.Payment.Where(p => p.ExpenseId == grpExp.Id).Select(e => e.Ammount).ToList().First();
+            ViewBag.tripName = _context.Trip.Find(id).Name;
+            List<Expense> exps = _context.Expense.Where(e => e.EquallyDivided && e.TripId == id && e.PayedBy != "").ToList();
+            foreach(Expense e in exps)
+            {
+                e.PayedBy = _context.Users.Find(e.PayedBy).UserName;
+            }
+            return View(exps);
         }
 
         // GET: Expenses/Details/5
@@ -201,12 +212,12 @@ namespace ExpenseCalculator.Controllers
             return _context.Expense.Any(e => e.Id == id);
         }
 
-        public void UpdateGroupExpenses(int TripId)
+        public void UpdateGroupExpenses(int id)
         {
             //Get total ammount of group expenses and no of users
-            float totalAmmount = _context.Expense.Where(e => e.EquallyDivided && e.TripId == TripId && e.Name != "Group Expense").Sum(e => e.TotalAmmount);
-            Expense groupExp = _context.Expense.Where(e => e.Name == "Group Expense" && e.TripId == TripId).ToList().First();
-            List<string> userIds = _context.UserTrip.Where(ut => ut.TripId == TripId).Select(ut=>ut.UserId).ToList();
+            float totalAmmount = _context.Expense.Where(e => e.EquallyDivided && e.TripId == id && e.Name != "Group Expense").Sum(e => e.TotalAmmount);
+            Expense groupExp = _context.Expense.Where(e => e.Name == "Group Expense" && e.TripId == id && e.PayedBy == "").ToList().First();
+            List<string> userIds = _context.UserTrip.Where(ut => ut.TripId == id).Select(ut=>ut.UserId).ToList();
             if (totalAmmount == 0 || userIds.IsNullOrEmpty())
             {
                 return;
