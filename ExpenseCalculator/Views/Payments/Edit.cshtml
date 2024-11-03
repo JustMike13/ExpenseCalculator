@@ -4,20 +4,14 @@
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
+<h1>Edit payment</h1>
 
-<h4>Payment</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Payer" class="control-label"></label>
-                <input asp-for="Payer" class="form-control" />
-                <span asp-validation-for="Payer" class="text-danger"></span>
-            </div>
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
@@ -27,12 +21,11 @@
                 <label asp-for="Ammount" class="control-label"></label>
                 <input asp-for="Ammount" class="form-control" />
                 <span asp-validation-for="Ammount" class="text-danger"></span>
+				<p>A <span style="color:red">negative</span> ammount (a < 0) means the user has to pay.</p>
+                <p>A <span style="color:green">positive</span> ammount (a > 0) means the user has paid this expense or sent the sum to the owner of the trip.</p>
             </div>
-            <div class="form-group">
-                <label asp-for="ExpenseId" class="control-label"></label>
-                <input asp-for="ExpenseId" class="form-control" />
-                <span asp-validation-for="ExpenseId" class="text-danger"></span>
-            </div>
+            <input asp-for="Payer" type="hidden" />
+            <input asp-for="ExpenseId" type="hidden" />
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
@@ -41,7 +34,7 @@
 </div>
 
 <div>
-    <a asp-cpontroller="Expenses" asp-action="Details" asp-route-id="@Model.ExpenseId">Back to List</a>
+    <a asp-controller="Expenses" asp-action="Details" asp-route-id="@Model.ExpenseId">Back to List</a>
 </div>
 
 @section Scripts {

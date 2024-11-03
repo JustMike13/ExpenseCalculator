@@ -111,7 +111,20 @@ namespace ExpenseCalculator.Controllers
             {
                 return NotFound();
             }
-            return View(payment);
+            System.FormattableString query = FormattableStringFactory.
+                Create( "SELECT t.CreatorId FROM Payment p, Trip t, Expense e " +
+                        "WHERE p.ExpenseId = e.Id and e.TripId = t.Id");
+            string tripCreatorId =  _context.Database
+                                    .SqlQuery<string>(query)
+                                    .ToList().First();
+            List<string> editors = new List<string>() { tripCreatorId, payment.Payer };
+
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (User.IsInRole("Admin") || editors.Contains(userId))
+            {
+                return View(payment);
+            }
+            return Redirect("/Identity/Account/AccessDenied");
         }
 
         // POST: Payments/Edit/5
