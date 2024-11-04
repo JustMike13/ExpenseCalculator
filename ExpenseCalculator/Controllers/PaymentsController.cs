@@ -56,16 +56,23 @@ namespace ExpenseCalculator.Controllers
         // id: 1 - Add Payment with current users id
         //     2 - Show dropdown with all users
         //     3 - a user paying his debt
-        public IActionResult Create(int? id, int ExpenseId = 0, string? ExpenseName = " ")
+        public async Task<IActionResult> Create(int? id, int ExpenseId = 0, string? ExpenseName = " ")
         {
-            Payment p = new Payment();
-            p.ExpenseId = ExpenseId;
-            p.Name = ExpenseName;
+            Payment newPmt = new Payment();
+            newPmt.ExpenseId = ExpenseId;
+            newPmt.Name = ExpenseName;
             ViewBag.PaymentType = -1;
             if (id == 1)
             {
+                newPmt.Payer = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var existingPmt = await _context.Payment
+                .FirstOrDefaultAsync(pay => pay.ExpenseId == ExpenseId && pay.Payer == newPmt.Payer);
+                if (existingPmt != null)
+                {
+                    string message = "Payment already exists, redirected to edit";
+                    return RedirectToAction("Edit", new { existingPmt.Id, message });
+                }
                 ViewBag.UserId = "Assigned";
-                p.Payer = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 ViewBag.Users = "noList";
             }
             else if (id == 2)
@@ -78,7 +85,7 @@ namespace ExpenseCalculator.Controllers
             {
                 ViewBag.PaymentType = 1;
             }
-            return View(p);
+            return View(newPmt);
         }
 
         // POST: Payments/Create
@@ -99,12 +106,13 @@ namespace ExpenseCalculator.Controllers
         }
 
         // GET: Payments/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id, string Message = " ")
         {
             if (id == null)
             {
                 return NotFound();
             }
+            ViewBag.Message = Message;
 
             var payment = await _context.Payment.FindAsync(id);
             if (payment == null)
@@ -138,7 +146,6 @@ namespace ExpenseCalculator.Controllers
             {
                 return NotFound();
             }
-
             if (ModelState.IsValid)
             {
                 try
@@ -157,7 +164,7 @@ namespace ExpenseCalculator.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return Redirect("/Expenses/Details/" + payment.ExpenseId.ToString());
             }
             return View(payment);
         }
