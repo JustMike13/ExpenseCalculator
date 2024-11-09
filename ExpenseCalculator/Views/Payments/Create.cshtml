@@ -1,8 +1,8 @@
-﻿@model ExpenseCalculator.Models.Payment
+@model ExpenseCalculator.Models.Payment
 
 @{
     ViewData["Title"] = "Create";
-    var users = @ViewBag.Users;
+    var users = @ViewBag.Users as IEnumerable<SelectListItem>;
     var paymentType = -1;
 }
 
@@ -47,7 +47,7 @@
 </div>
 
 <div>
-    <a asp-cpontroller="Expenses" asp-action="Details" asp-route-id="@Model.ExpenseId">Back to List</a>
+    <a asp-controller="Expenses" asp-action="Details" asp-route-id="@Model.ExpenseId">Back to List</a>
 </div>
 
 @section Scripts {

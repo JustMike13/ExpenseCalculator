@@ -44,7 +44,13 @@
 </div>
 <div>
     <a class="btn btn-primary" asp-controller="Payments" asp-action="Create" asp-route-id="1" asp-route-expenseId="@Model?.Id" asp-route-expenseName="@Model?.Name">Add Payment</a>
-    <a class="btn btn-primary" asp-controller="Payments" asp-action="Create" asp-route-id="2" asp-route-expenseId="@Model?.Id" asp-route-expenseName="@Model?.Name">Ask For Payment</a>
+    @if ((expenseUserName == myUserName
+         || creatorName == myUserName
+         || isAdmin)
+         && ViewBag.NoOfUsers > payments.Count())
+    {
+        <a class="btn btn-primary" asp-controller="Payments" asp-action="Create" asp-route-id="2" asp-route-expenseId="@Model?.Id" asp-route-expenseName="@Model?.Name">Ask For Payment</a>
+    }
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -54,7 +54,7 @@ namespace ExpenseCalculator.Controllers
 
         // GET: Payments/Create
         // id: 1 - Add Payment with current users id
-        //     2 - Show dropdown with all users
+        //     2 - Show dropdown with all users in the trip
         //     3 - a user paying his debt
         public async Task<IActionResult> Create(int? id, int ExpenseId = 0, string? ExpenseName = " ")
         {
@@ -80,6 +80,21 @@ namespace ExpenseCalculator.Controllers
                 ViewBag.UserId = "NoUserAssigned";
                 var users = _context.Users.Select(u => new { u.Id, u.UserName }).ToList();
                 ViewBag.Users = new SelectList(users, "Id", "UserName");
+                // Get the list of user IDs to exclude
+                var excludedUserIds = from u in _context.Users
+                                      join p in _context.Payment on u.Id equals p.Payer
+                                      where p.ExpenseId == ExpenseId
+                                      select u.Id;
+                var query = from u in _context.Users
+                            join ut in _context.UserTrip on u.Id equals ut.UserId
+                            join e in _context.Expense on ut.TripId equals e.TripId
+                            where e.Id == ExpenseId && !excludedUserIds.Contains(u.Id)
+                            select new
+                            {
+                                Id = u.Id,
+                                UserName = u.UserName
+                            };
+                ViewBag.Users = new SelectList(query.ToList(), "Id", "UserName");
             }
             else if (id == 3)
             {

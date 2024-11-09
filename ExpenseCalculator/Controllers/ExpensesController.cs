@@ -84,7 +84,12 @@ namespace ExpenseCalculator.Controllers
 
             //Check if current user is admin
             ViewBag.IamAdmin = User.IsInRole("Admin");
-
+            var userIdList = from u in _context.Users
+                        join ut in _context.UserTrip on u.Id equals ut.UserId
+                        join e in _context.Expense on ut.TripId equals e.TripId
+                        where e.Id == id
+                        select u.Id;
+            ViewBag.NoOfUsers = userIdList.ToList().Count();
             return View(expense);
         }
 
