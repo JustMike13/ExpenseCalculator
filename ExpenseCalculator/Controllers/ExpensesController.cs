@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -122,7 +122,11 @@ namespace ExpenseCalculator.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("TripId,PayedBy,Name,TotalAmmount,EquallyDivided,OwnContribution")] Expense expense)
         {
-            if (ModelState.IsValid)
+            if (expense.Name == "Group Expense")
+            {
+                ViewBag.Message = "Name \"Group Expense\" is reverved!";
+            }
+            else if (ModelState.IsValid)
             {
                 _context.Add(expense);
                 await _context.SaveChangesAsync();
@@ -163,14 +167,18 @@ namespace ExpenseCalculator.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,PayedBy,Name,TotalAmmount,EquallyDivided,OwnContribution")] Expense expense)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,PayedBy,Name,TotalAmmount,EquallyDivided,OwnContribution,TripId")] Expense expense)
         {
             if (id != expense.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (expense.Name == "Group Expense")
+            {
+                ViewBag.Message = "Name \"Group Expense\" is reverved!";
+            }
+            else if (ModelState.IsValid)
             {
                 try
                 {

@@ -7,6 +7,10 @@
 <h1>Edit</h1>
 
 <h4>Expense</h4>
+@if (ViewBag.Message != null)
+{
+    <h3 style="color:red">@ViewBag.Message</h3>
+}
 <hr />
 <div class="row">
     <div class="col-md-4">
