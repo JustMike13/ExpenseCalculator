@@ -24,20 +24,34 @@ namespace ExpenseCalculator.Controllers
         }
 
         // GET: Expenses
+        // id = TripId
+        // Shows group expenses for a trip
         public async Task<IActionResult> Index(int id)
         {
             UpdateGroupExpenses(id);
             ViewBag.tripId = id;
-            Expense grpExp = _context.Expense.Where(e => e.EquallyDivided && e.TripId == id && e.PayedBy == "").ToList().First();
-            ViewBag.total = grpExp.TotalAmmount;
-            ViewBag.perUser = _context.Payment.Where(p => p.ExpenseId == grpExp.Id).Select(e => e.Ammount).ToList().First();
-            ViewBag.tripName = _context.Trip.Find(id).Name;
-            List<Expense> exps = _context.Expense.Where(e => e.EquallyDivided && e.TripId == id && e.PayedBy != "").ToList();
-            foreach(Expense e in exps)
+            ViewBag.NoExpenses = false;
+            ViewBag.myUserName = User.Identity.Name;
+            ViewBag.IamAdmin = User.IsInRole("Admin");
+            ViewBag.IamCreator = _context.Trip.Where(t => t.CreatorId == User.FindFirstValue(ClaimTypes.NameIdentifier) && t.Id == id).Any();
+            try
             {
-                e.PayedBy = _context.Users.Find(e.PayedBy).UserName;
+                Expense grpExp = _context.Expense.Where(e => e.EquallyDivided && e.TripId == id && e.PayedBy == "").ToList().First();
+                ViewBag.total = grpExp.TotalAmmount;
+                ViewBag.perUser = _context.Payment.Where(p => p.ExpenseId == grpExp.Id).Select(e => e.Ammount).ToList().First();
+                ViewBag.tripName = _context.Trip.Find(id).Name;
+                List<Expense> exps = _context.Expense.Where(e => e.EquallyDivided && e.TripId == id && e.PayedBy != "").ToList();
+                foreach (Expense e in exps)
+                {
+                    e.PayedBy = _context.Users.Find(e.PayedBy).UserName;
+                }
+                return View(exps);
             }
-            return View(exps);
+            catch (Exception e)
+            {
+                ViewBag.NoExpenses = true;
+            }
+            return View();
         }
 
         // GET: Expenses/Details/5
@@ -221,7 +235,23 @@ namespace ExpenseCalculator.Controllers
         {
             //Get total ammount of group expenses and no of users
             float totalAmmount = _context.Expense.Where(e => e.EquallyDivided && e.TripId == id && e.Name != "Group Expense").Sum(e => e.TotalAmmount);
-            Expense groupExp = _context.Expense.Where(e => e.Name == "Group Expense" && e.TripId == id && e.PayedBy == "").ToList().First();
+            Expense groupExp;
+            try
+            {
+                groupExp = _context.Expense.Where(e => e.Name == "Group Expense" && e.TripId == id && e.PayedBy == "").ToList().First();
+            }
+            catch (Exception e)
+            {
+                groupExp = new Expense();
+                groupExp.Name = "Group Expense";
+                groupExp.TripId = id;
+                groupExp.PayedBy = "";
+                groupExp.OwnContribution = 0;
+                groupExp.TotalAmmount = 0;
+                groupExp.EquallyDivided = true;
+                _context.Add(groupExp);
+                _context.SaveChanges();
+            }
             List<string> userIds = _context.UserTrip.Where(ut => ut.TripId == id).Select(ut=>ut.UserId).ToList();
             if (totalAmmount == 0 || userIds.IsNullOrEmpty())
             {
