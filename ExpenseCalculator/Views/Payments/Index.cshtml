@@ -14,6 +14,17 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+@{
+if (total > 0)
+{
+    <h2>You will receive <span style="color:green">@total</span> from administrator.</h2>
+}
+else if (total < 0)
+{
+    <h2>You have to pay <span style="color:red">@total</span> to administrator.</h2>
+}
+}
 <table class="table">
     <thead>
         <tr>
@@ -42,9 +53,7 @@
                 @Html.DisplayFor(modelItem => item.Ammount)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id"><span class="bi bi-pencil-fill"></a>
             </td>
         </tr>
 }

@@ -184,6 +184,17 @@ namespace ExpenseCalculator.Controllers
                 {
                     _context.Update(expense);
                     await _context.SaveChangesAsync();
+                    bool wasGroup = _context.Expense.Where(e => e.Id == id).Select(e => e.EquallyDivided).ToList().First();
+                    if (wasGroup != expense.EquallyDivided)
+                    {
+                        List<Payment> pmts = _context.Payment.Where(p => p.ExpenseId == expense.Id && p.Ammount <= 0).ToList();
+                        foreach (Payment pmt in pmts)
+                        {
+                            _context.Remove(pmt);
+                            _context.SaveChangesAsync();
+                        }
+                        UpdateGroupExpenses(expense.TripId);
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -239,10 +250,16 @@ namespace ExpenseCalculator.Controllers
             return _context.Expense.Any(e => e.Id == id);
         }
 
-        public void UpdateGroupExpenses(int id)
+        public void UpdateGroupExpenses(int id) 
         {
-            //Get total ammount of group expenses and no of users
+            //Get total ammount of group expenses and list of users
             float totalAmmount = _context.Expense.Where(e => e.EquallyDivided && e.TripId == id && e.Name != "Group Expense").Sum(e => e.TotalAmmount);
+            List<string> userIds = _context.UserTrip.Where(ut => ut.TripId == id).Select(ut=>ut.UserId).ToList();
+            if (totalAmmount == 0 || userIds.IsNullOrEmpty())
+            {
+                return;
+            }
+
             Expense groupExp;
             try
             {
@@ -259,11 +276,6 @@ namespace ExpenseCalculator.Controllers
                 groupExp.EquallyDivided = true;
                 _context.Add(groupExp);
                 _context.SaveChanges();
-            }
-            List<string> userIds = _context.UserTrip.Where(ut => ut.TripId == id).Select(ut=>ut.UserId).ToList();
-            if (totalAmmount == 0 || userIds.IsNullOrEmpty())
-            {
-                return;
             }
 
             //create or update payments
@@ -290,5 +302,14 @@ namespace ExpenseCalculator.Controllers
             groupExp.TotalAmmount = totalAmmount;
             _context.SaveChanges();
         }
+
+        //public void PaymentIndex(int? id)
+        //{
+        //    if (id != null)
+        //    {
+        //        UpdateGroupExpenses(id.Value);
+        //    }
+        //    RedirectToAction("Index", "Payment");
+        //}
     }
 }

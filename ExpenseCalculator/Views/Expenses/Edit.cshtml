@@ -31,12 +31,12 @@
             </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input" asp-for="EquallyDivided" /> @Html.DisplayNameFor(model => model.EquallyDivided)
+                    <input class="form-check-input" asp-for="EquallyDivided" id="equallyDividedCheckbox" /> Group expense
                 </label>
             </div>
             <div class="form-group">
                 <label asp-for="OwnContribution" class="control-label"></label>
-                <input asp-for="OwnContribution" class="form-control" />
+                <input asp-for="OwnContribution" class="form-control" id="ownContributionInput" />
                 <span asp-validation-for="OwnContribution" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -47,9 +47,31 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index" asp-controller="Expenses" asp-route-id="@Model.TripId">Back to List</a>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var equallyDividedCheckbox = document.getElementById("equallyDividedCheckbox");
+            var ownContributionInput = document.getElementById("ownContributionInput");
+
+            equallyDividedCheckbox.addEventListener("change", function () {
+                if (equallyDividedCheckbox.checked) {
+                    ownContributionInput.disabled = true;
+                    ownContributionInput.value = "0"; // Optionally reset the value
+                } else {
+                    ownContributionInput.disabled = false;
+                }
+            });
+
+            // Initialize the state based on the initial checkbox value
+            if (equallyDividedCheckbox.checked) {
+                ownContributionInput.disabled = true;
+            } else {
+                ownContributionInput.disabled = false;
+            }
+        });
+    </script>
 }

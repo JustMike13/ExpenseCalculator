@@ -25,13 +25,13 @@ namespace ExpenseCalculator.Controllers
         public async Task<IActionResult> Index(int? id)
         {
             System.FormattableString query = FormattableStringFactory.
-                Create("SELECT p.Id FROM Payment p, Expense e " +
+                Create("SELECT p.Id, u.UserName Payer, p.Name, p.Ammount, p.ExpenseId FROM Payment p, Expense e, AspNetUsers u " +
                 "WHERE p.Payer = '" + User.FindFirstValue(ClaimTypes.NameIdentifier) + 
-                "' and p.ExpenseId = e.Id and e.TripId = " + id.ToString());
+                "' and p.ExpenseId = e.Id and e.TripId = " + id.ToString() + " AND u.Id = p.Payer");
             var result = _context.Database
-                        .SqlQuery<int>(query)
+                        .SqlQuery<Payment>(query)
                         .ToList();
-            return View(await _context.Payment.Where(p => result.Contains(p.Id)).ToListAsync());
+            return View(result);
         }
 
         // GET: Payments/Details/5

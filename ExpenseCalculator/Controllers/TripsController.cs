@@ -40,7 +40,7 @@ namespace ExpenseCalculator.Controllers
             var result = _context.Database
                         .SqlQuery<int>(query)
                         .ToList();
-            return View(await _context.Trip.Where(t => result.Contains(t.Id) || User.IsInRole("Admin")).ToListAsync());
+            return View(await _context.Trip.Where(t => (result.Contains(t.Id) || User.IsInRole("Admin")) && t.Active).ToListAsync());
         }
 
         // GET: Trips/Details/5
@@ -198,7 +198,9 @@ namespace ExpenseCalculator.Controllers
             var trip = await _context.Trip.FindAsync(id);
             if (trip != null)
             {
-                _context.Trip.Remove(trip);
+                trip.Active = false;
+                _context.Update(trip);
+                await _context.SaveChangesAsync();
             }
 
             await _context.SaveChangesAsync();
