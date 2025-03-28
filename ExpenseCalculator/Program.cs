@@ -29,6 +29,9 @@ else
     app.UseHsts();
 }
 
+// Add HTTPS Redirection
+app.UseHttpsRedirection();
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
